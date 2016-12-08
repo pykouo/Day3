@@ -1,56 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>OuO</title>
-	<style>
-		*{
-			font-family: sans-serif;
-		}
-		a{
-			text-decoration: none;
-			color: #3a3a3a;
-		}
-		a:hover{
-			color: #0050d1;
-		}
-		ol{
-			width: 80%;
-			margin-left: 10%;
-			margin-top: 50px;
-		}
-		li{
-			margin-top: 20px;
-		}
-		h2{
-			text-align: center;
-			margin-top: 40px;
-		}
-		li span{
-			margin-left: 10px;
-		}
-	</style>
-</head>
-<body>
-	<h2>list [ < date > , < function name > , < version > ]</h2>
-	<ol> 
-		<li>
-			<a href="parallax/index.html"><span class="date">2016/10/21</span><span class="name">parallax scroll</span><span class="version">v1.0</span></a>
-		</li>
-		<li>
-			<a href="AJAX_content/index.html"><span class="date">2016/11/23</span><span class="name">AJAX change content</span><span class="version">v1.0</span></a>
-		</li>
-		<li>
-			<a href="random_star/index.html"><span class="date">2016/11/24</span><span class="name">random stars</span><span class="version">v1.0</span</a>
-		</li>
-		<li>
-			<a href="4item_slide/index.html"><span class="date">2016/11/24</span><span class="name">4 items scroll slide</span><span class="version">v1.0</span></a>
-		</li>
-		<li><a href="contentArray/index.html"><span class="date">2016/12/01</span><span class="name">get div content from js array</span><span class="version">v1.0</span></a></li>
-		<li><a href="image_library/index.html"><span class="date">2016/12/01</span><span class="name">images library</span><span class="version">v1.0</span></a></li>
-		<li><a href="imgParallax/index.html"><span class="date">2016/12/02</span><span class="name">use img parallax without plugin</span><span class="version">v1.0</span></a></li>
-		<li><a href="slideShow/index.html"><span class="date">2016/12/08</span><span class="name">slide Show(infinite) problem:快速按的問題</span><span class="version">v1.0</span></a></li>
 
-	</ol>
+<head>
+    <meta charset="UTF-8">
+    <title>Slide Show</title>
+    <style>
+    * {
+        margin: 0;
+        border: 0;
+        padding: 0;
+    }
+    
+    ul {
+        list-style: none;
+    }
+    
+    a {
+        text-decoration: none;
+    }
+    
+    .slide_box {
+        
+        /* overflow: hidden; */
+    }
+    
+    .item_set {
+    	white-space: nowrap;
+        height: 600px;
+        width:auto;
+        overflow:hidden;
+
+    }
+    .slide_item{
+    	display: inline-block;
+    }
+    .slide_item > img {
+        width: 100%;
+    }
+    .slide_item > span{
+    	position: relative;
+    	font-size: 100px;
+    	left: -600px;
+    	top:  -300px;
+    	color: yellow;
+    }
+    .slide_arrow {
+        display: inline-block;
+        height: 600px;
+        background-color: rgba(0, 0, 0, 0.1);
+        width: 150px;
+        position: relative;
+        top: -600px;
+    }
+    
+    .slide_arrow:hover {
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+    
+    .slide_arrow span {
+        display: block;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: -115px;
+        padding-top: 300px;
+        font-size: 200px;
+        text-align: center;
+    }
+    
+    .slide_arrow:hover span {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .slide_arrow.left {
+        float: left;
+    }
+    
+    .slide_arrow.right {
+        float: right;
+    }
+    
+    .slide_dots {
+        position: relative;
+        top: -40px;
+        margin: 0 auto;
+    }
+    
+    .slide_dots > div {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background-color: #e4e4e4;
+        text-align: center;
+        cursor: pointer;
+    }
+    
+    .slide_dots > div:hover {
+        background-color: #FFF;
+    }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+    $(function() {
+        var item_num = 0;
+        var now_item = 0; //目前所在的圖片序號
+        var w_width = $(window).width();
+        var item_pos = new Array;
+
+        $('.item_set div').each(function(index) {
+            console.log(index);
+            //在每個圖片加上編號
+            $(this).attr('id', 'item_' + index);
+            // 新增dot
+            $('.slide_dots').append("<div id='" + index + "'>" + (index + 1) + "</div>");
+            item_num += 1;
+            //記錄圖片寬度（加總）
+            item_pos.push($(this).position().left);
+        });
+
+
+         //一開始從原本的第一張開始
+        $('.item_set').scrollLeft(item_pos[0]+w_width);
+        //在前後clone一個div
+
+        //在第一個前加上最後一張圖 temp1
+        $( '.item_set' ).prepend($('#item_'+(item_num-1)).clone().attr('id','temp1'));
+        //在最後一個後加上第一張圖 temp2
+        $( '.item_set' ).append($('#item_0').clone().attr('id','temp2'));
+        changeDot(-1,0);
+
+
+
+		//設定slide_dots的寬度 用dot的寬度去乘
+        $('.slide_dots').css('width', (40 * item_num) + 'px');
+        
+       
+
+        //往左滑
+        $('.slide_arrow.left').on('click', function() {
+        	console.log(now_item);
+        	if(now_item > 0){
+        		changeDot(now_item,now_item-1);
+        		now_item -= 1;
+  				$(".item_set").stop(true).animate({scrollLeft: item_pos[now_item]+ w_width}, 500);
+  				console.log(now_item);
+        	}else{
+        		changeDot(now_item,item_num-1);
+        		now_item = item_num - 1;
+
+        		console.log('跳到最後一張');
+        		$('.item_set').stop(true).animate({scrollLeft: 0}, 500);
+        		//做完上個才執行
+        		$('.item_set').promise().done(function() {
+        			$('.item_set').stop(true).scrollLeft(item_pos[item_num-1] + w_width);
+        		});
+        		console.log('跳了！')
+        		console.log(now_item);
+        	} 
+        });
+
+
+        $('.slide_arrow.right').on('click', function() {
+        	if(now_item < item_num-1){
+        		changeDot(now_item,now_item+1);
+        		now_item += 1;
+  				$(".item_set").stop(true).animate({scrollLeft: item_pos[now_item]+ w_width}, 500);
+  				console.log(now_item);
+        	}else{
+        		changeDot(now_item,0);
+        		now_item = 0;
+        		console.log('跳到第一張');
+        		$('.item_set').stop(true).animate({scrollLeft: item_pos[item_num-1]+ w_width*2}, 500);
+        		//做完上個才執行
+        		$('.item_set').promise().done(function() {
+        			$('.item_set').stop(true).scrollLeft(item_pos[now_item]+ w_width);
+        		});
+        		console.log('跳了！')
+        		console.log(now_item);
+        	}
+        });
+
+
+        //點擊數字直接滑的地方
+        $('.slide_dots div').on('click', function() {
+            //dot的class就是img的id
+            var move_index = $(this).attr('id');
+            console.log(move_index);
+            changeDot(now_item,move_index);
+            $(".item_set").stop(true).animate({scrollLeft: item_pos[move_index]+w_width}, 500);
+            now_item = parseInt(move_index);
+        });
+
+        function changeDot(now,next){
+        	$(".slide_dots #"+now).css('background-color','#e4e4e4');
+        	$(".slide_dots #"+next).css('background-color','#000');
+        }
+    });
+    </script>
+</head>
+
+<body>
+    <div class="slide_box">
+        <div class="item_set">
+            <div class="slide_item"><img src="bear1.png"><span>1</span>
+            </div><div class="slide_item"><img src="bear2.jpg"><span>2</span>
+            </div><div class="slide_item"><img src="bear3.png"><span>3</span>
+            </div><div class="slide_item"><img src="bear4.jpg"><span>4</span></div>
+        </div>
+    </div>
+    <a class="slide_arrow left"><span><</span></a>
+    <a class="slide_arrow right"><span>></span></a>
+    <div class="slide_dots"></div>
+    <div class="test">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam, illum dolore. Rerum asperiores quis dolor iste illo quae nobis. Placeat velit asperiores totam accusamus, tempora consequatur corrupti magni temporibus aliquid.</div>
 </body>
+
 </html>

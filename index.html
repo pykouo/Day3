@@ -20,30 +20,32 @@
     }
     
     .slide_box {
-        
         /* overflow: hidden; */
     }
     
     .item_set {
-    	white-space: nowrap;
+        white-space: nowrap;
         height: 600px;
-        width:auto;
-        overflow:hidden;
-
+        width: auto;
+        overflow: hidden;
     }
-    .slide_item{
-    	display: inline-block;
+    
+    .slide_item {
+        display: inline-block;
     }
+    
     .slide_item > img {
         width: 100%;
     }
-    .slide_item > span{
-    	position: relative;
-    	font-size: 100px;
-    	left: -600px;
-    	top:  -300px;
-    	color: yellow;
+    
+    .slide_item > span {
+        position: relative;
+        font-size: 100px;
+        left: -600px;
+        top: -300px;
+        color: yellow;
     }
+    
     .slide_arrow {
         display: inline-block;
         height: 600px;
@@ -117,65 +119,81 @@
         });
 
 
-         //一開始從原本的第一張開始
-        $('.item_set').scrollLeft(item_pos[0]+w_width);
+        //一開始從原本的第一張開始
+        $('.item_set').scrollLeft(item_pos[0] + w_width);
         //在前後clone一個div
 
         //在第一個前加上最後一張圖 temp1
-        $( '.item_set' ).prepend($('#item_'+(item_num-1)).clone().attr('id','temp1'));
+        $('.item_set').prepend($('#item_' + (item_num - 1)).clone().attr('id', 'temp1'));
         //在最後一個後加上第一張圖 temp2
-        $( '.item_set' ).append($('#item_0').clone().attr('id','temp2'));
-        changeDot(-1,0);
+        $('.item_set').append($('#item_0').clone().attr('id', 'temp2'));
+        changeDot(-1, 0);
 
 
 
-		//設定slide_dots的寬度 用dot的寬度去乘
+        //設定slide_dots的寬度 用dot的寬度去乘
         $('.slide_dots').css('width', (40 * item_num) + 'px');
-        
-       
 
+
+        var flag = 0;
         //往左滑
         $('.slide_arrow.left').on('click', function() {
-        	console.log(now_item);
-        	if(now_item > 0){
-        		changeDot(now_item,now_item-1);
-        		now_item -= 1;
-  				$(".item_set").stop(true).animate({scrollLeft: item_pos[now_item]+ w_width}, 500);
-  				console.log(now_item);
-        	}else{
-        		changeDot(now_item,item_num-1);
-        		now_item = item_num - 1;
+            if (flag == 1) {
+                return 0;
+            } else {
+                flag = 1;
+                if (now_item > 0) {
+                    changeDot(now_item, now_item - 1);
+                    now_item -= 1;
+                    $(".item_set").stop(true).animate({
+                        scrollLeft: item_pos[now_item] + w_width
+                    }, 500,function(){
+                        flag = 0;
+                    });
+                } else {
+                    changeDot(now_item, item_num - 1);
+                    now_item = item_num - 1;
+                    $('.item_set').stop(true).animate({
+                        scrollLeft: 0
+                    }, 500);
+                    //做完上個才執行
+                    $('.item_set').promise().done(function() {
+                        $('.item_set').stop(true).scrollLeft(item_pos[item_num - 1] + w_width);
+                        flag = 0 ;
+                    });
+                }
+            }
 
-        		console.log('跳到最後一張');
-        		$('.item_set').stop(true).animate({scrollLeft: 0}, 500);
-        		//做完上個才執行
-        		$('.item_set').promise().done(function() {
-        			$('.item_set').stop(true).scrollLeft(item_pos[item_num-1] + w_width);
-        		});
-        		console.log('跳了！')
-        		console.log(now_item);
-        	} 
         });
 
-
         $('.slide_arrow.right').on('click', function() {
-        	if(now_item < item_num-1){
-        		changeDot(now_item,now_item+1);
-        		now_item += 1;
-  				$(".item_set").stop(true).animate({scrollLeft: item_pos[now_item]+ w_width}, 500);
-  				console.log(now_item);
-        	}else{
-        		changeDot(now_item,0);
-        		now_item = 0;
-        		console.log('跳到第一張');
-        		$('.item_set').stop(true).animate({scrollLeft: item_pos[item_num-1]+ w_width*2}, 500);
-        		//做完上個才執行
-        		$('.item_set').promise().done(function() {
-        			$('.item_set').stop(true).scrollLeft(item_pos[now_item]+ w_width);
-        		});
-        		console.log('跳了！')
-        		console.log(now_item);
-        	}
+            if(flag == 1){
+                return 0;
+            }else{
+                flag = 1;
+                if (now_item < item_num - 1) {
+                changeDot(now_item, now_item + 1);
+                now_item += 1;
+                $(".item_set").stop(true).animate({
+                    scrollLeft: item_pos[now_item] + w_width
+                }, 500,function() {
+                    flag = 0;
+                });
+                console.log(now_item);
+            } else {
+                changeDot(now_item, 0);
+                now_item = 0;
+                $('.item_set').stop(true).animate({
+                    scrollLeft: item_pos[item_num - 1] + w_width * 2
+                }, 500);
+                //做完上個才執行
+                $('.item_set').promise().done(function() {
+                    $('.item_set').stop(true).scrollLeft(item_pos[now_item] + w_width);
+                    flag = 0;
+                });
+            }
+            }
+            
         });
 
 
@@ -184,14 +202,16 @@
             //dot的class就是img的id
             var move_index = $(this).attr('id');
             console.log(move_index);
-            changeDot(now_item,move_index);
-            $(".item_set").stop(true).animate({scrollLeft: item_pos[move_index]+w_width}, 500);
+            changeDot(now_item, move_index);
+            $(".item_set").stop(true).animate({
+                scrollLeft: item_pos[move_index] + w_width
+            }, 500);
             now_item = parseInt(move_index);
         });
 
-        function changeDot(now,next){
-        	$(".slide_dots #"+now).css('background-color','#e4e4e4');
-        	$(".slide_dots #"+next).css('background-color','#000');
+        function changeDot(now, next) {
+            $(".slide_dots #" + now).css('background-color', '#e4e4e4');
+            $(".slide_dots #" + next).css('background-color', '#000');
         }
     });
     </script>
@@ -201,9 +221,12 @@
     <div class="slide_box">
         <div class="item_set">
             <div class="slide_item"><img src="bear1.png"><span>1</span>
-            </div><div class="slide_item"><img src="bear2.jpg"><span>2</span>
-            </div><div class="slide_item"><img src="bear3.png"><span>3</span>
-            </div><div class="slide_item"><img src="bear4.jpg"><span>4</span></div>
+            </div>
+            <div class="slide_item"><img src="bear2.jpg"><span>2</span>
+            </div>
+            <div class="slide_item"><img src="bear3.png"><span>3</span>
+            </div>
+            <div class="slide_item"><img src="bear4.jpg"><span>4</span></div>
         </div>
     </div>
     <a class="slide_arrow left"><span><</span></a>

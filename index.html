@@ -125,7 +125,6 @@
         var w_width = $(window).width();
         var item_pos = new Array;
         $(".item_set div[id*='item']").each(function(index) {
-            console.log(index);
             //在每個圖片加上編號
             $(this).attr('id', 'item_' + index);
             // 新增dot
@@ -137,7 +136,6 @@
 
         $('.item_set').promise().done(function(){
             // 一開始從原本的第一張開始
-            console.log('太早了？！');
             $('.item_set').scrollLeft(item_pos[0]);
 
         });
@@ -191,7 +189,6 @@
                 }, 500,function() {
                     flag = 0;
                 });
-                console.log(now_item);
             } else {
                 changeDot(now_item, 0);
                 now_item = 0;
@@ -213,7 +210,6 @@
         $('.slide_dots div').on('click', function() {
             //dot的class就是img的id
             var move_index = $(this).attr('id');
-            console.log(move_index);
             changeDot(now_item, move_index);
             $(".item_set").stop(true).animate({
                 scrollLeft: item_pos[move_index] + w_width
